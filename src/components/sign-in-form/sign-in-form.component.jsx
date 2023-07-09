@@ -1,6 +1,4 @@
-import { useState, useContext } from "react";
-
-import { UserContext } from "../../contexts/user.context";
+import { useState } from "react";
 import {
   createUserDocumentFromAuth,
   signInAuthUserWithEmailAndPassword,
@@ -22,8 +20,6 @@ const SignInForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const { email, password } = formFields;
 
-  const { setCurrentUser } = useContext(UserContext);
-
   // Function for reseting state to default
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
@@ -31,8 +27,7 @@ const SignInForm = () => {
 
   // Function for executing google authenication with popup
   const signInWithGoogle = async () => {
-    const { user } = await signInWithGooglePopup();
-    await createUserDocumentFromAuth(user);
+    await signInWithGooglePopup();
   };
 
   // Handler that fires when form is submitted
@@ -44,8 +39,6 @@ const SignInForm = () => {
         email,
         password
       );
-
-      setCurrentUser(user);
 
       resetFormFields();
     } catch (error) {
