@@ -9,7 +9,16 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  writeBatch,
+  query,
+  getDocs,
+} from "firebase/firestore";
 
 // Firebase config
 const firebaseConfig = {
@@ -39,6 +48,42 @@ export const signInWithGoogleRedirect = () =>
 
 // Initialize firebase database object
 export const db = getFirestore();
+
+// Function for generating database collection and documents in firebase data store
+export const addCollectionAndDocuments = async (
+  collectionKey,
+  objectsToAdd
+) => {
+  // Get a reference to a collection from database that matches the collectionKey
+  const collectionRef = collection(db, collectionKey);
+
+  const batch = writeBatch(db);
+
+  // Create all the documents. Object needs to have a title field
+  objectsToAdd.forEach((object) => {
+    const docRef = doc(collectionRef, object.title.toLowerCase());
+    batch.set(docRef, object);
+  });
+
+  await batch.commit();
+  console.log("done");
+};
+
+// Function for getting categories collection data from firebase data store
+export const getCategoriesAndDocuments = async () => {
+  const collectionRef = collection(db, "categories");
+  const q = query(collectionRef);
+
+  const querySnapshot = await getDocs(q);
+
+  const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+    const { title, items } = docSnapshot.data();
+    acc[title.toLowerCase()] = items;
+    return acc;
+  }, {});
+
+  return categoryMap;
+};
 
 // Function for creating an user document for database from authentication
 export const createUserDocumentFromAuth = async (

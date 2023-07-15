@@ -1,0 +1,31 @@
+import { createContext, useState, useEffect } from "react";
+
+import { getCategoriesAndDocuments } from "../utils/firebase/firebase.utils.js";
+
+// Categories value to access
+export const CategoriesContext = createContext({
+  categoriesMap: {},
+});
+
+// Wrapper for accessing product context
+export const CategoriesProvider = ({ children }) => {
+  const [categoriesMap, setCategoriesMap] = useState({});
+
+  // Effect for getting categories data from firebase data store and setting the categoriesMap state
+  useEffect(() => {
+    const getCategoriesMap = async () => {
+      const categoryMap = await getCategoriesAndDocuments();
+      setCategoriesMap(categoryMap);
+    };
+
+    getCategoriesMap();
+  }, []);
+
+  const value = { categoriesMap };
+
+  return (
+    <CategoriesContext.Provider value={value}>
+      {children}
+    </CategoriesContext.Provider>
+  );
+};
