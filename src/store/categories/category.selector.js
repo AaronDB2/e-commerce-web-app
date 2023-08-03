@@ -1,8 +1,9 @@
 import { createSelector } from "reselect";
 
+// Selector that gets the categories state
 const selectCategoryReducer = (state) => state.categories;
 
-// Selector for categories that uses memoization
+// Selector for categories state that uses memoization
 export const selectCategories = createSelector(
   [selectCategoryReducer],
   (categoriesSlice) => categoriesSlice.categories
