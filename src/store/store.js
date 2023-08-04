@@ -1,7 +1,7 @@
 import { compose, createStore, applyMiddleware } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-
+import thunk from "redux-thunk";
 import logger from "redux-logger";
 
 import { rootReducer } from "./root-reducer";
@@ -10,16 +10,17 @@ import { rootReducer } from "./root-reducer";
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["user"],
+  whitelist: ["cart"],
 };
 
 // Create persisted reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // All the middlewares that will run before actions hit the reducers
-const middleWares = [process.env.NODE_ENV !== "production" && logger].filter(
-  Boolean
-);
+const middleWares = [
+  process.env.NODE_ENV !== "production" && logger,
+  thunk,
+].filter(Boolean);
 
 // Allow redux devtools extension in chrome to work if installed
 const composeEnhancer =

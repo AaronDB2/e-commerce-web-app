@@ -19,3 +19,9 @@ export const selectCategoriesMap = createSelector(
       return acc;
     }, {})
 );
+
+// Selector for isLoading in categories state. (uses memoization)
+export const selectCategoriesIsLoading = createSelector(
+  [selectCategoryReducer],
+  (categoriesSlice) => categoriesSlice.isLoading
+);
