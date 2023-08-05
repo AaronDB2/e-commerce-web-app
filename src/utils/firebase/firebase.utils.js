@@ -110,7 +110,9 @@ export const createUserDocumentFromAuth = async (
     }
   }
 
-  return userDocRef;
+  // return userDocRef (used pre saga)
+
+  return userSnapshot;
 };
 
 // Create email and password sign in functionality with Firebase
@@ -133,3 +135,19 @@ export const signOutUser = async () => await signOut(auth);
 // Listener that executes when auth state changes.
 export const onAuthStateChangedListener = (callback) =>
   onAuthStateChanged(auth, callback);
+
+// Function that instead of using auth listener from firebase uses a more promise based oproach.
+// This is needed for redux-saga so not necessarily the best way to do it.
+// It unsubscribes from the event listener and gives back the current user as a promise instead.
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (userAuth) => {
+        unsubscribe();
+        resolve(userAuth);
+      },
+      reject
+    );
+  });
+};

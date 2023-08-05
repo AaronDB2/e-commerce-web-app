@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 
 import CategoriesPreview from "../categories-preview/categories-preview.component";
 import Category from "../category/category.component";
-import { fetchCategoriesAsync } from "../../store/categories/category.action";
+import { fetchCategoriesStart } from "../../store/categories/category.action";
 
 // Shop component
 const Shop = () => {
@@ -12,7 +12,7 @@ const Shop = () => {
 
   // Effect for getting categories data from firebase data store and setting the categories state
   useEffect(() => {
-    dispatch(fetchCategoriesAsync());
+    dispatch(fetchCategoriesStart());
   }, []);
 
   return (
