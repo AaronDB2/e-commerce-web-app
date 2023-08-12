@@ -8,6 +8,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  NextOrObserver,
+  User,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -18,7 +20,10 @@ import {
   writeBatch,
   query,
   getDocs,
+  QueryDocumentSnapshot,
 } from "firebase/firestore";
+
+import { Category } from "../../store/categories/category.types";
 
 // Firebase config
 const firebaseConfig = {
@@ -49,11 +54,16 @@ export const signInWithGoogleRedirect = () =>
 // Initialize firebase database object
 export const db = getFirestore();
 
+// Object to add type
+export type ObjectToAdd = {
+  title: string;
+};
+
 // Function for generating database collection and documents in firebase data store
-export const addCollectionAndDocuments = async (
-  collectionKey,
-  objectsToAdd
-) => {
+export const addCollectionAndDocuments = async <T extends ObjectToAdd>(
+  collectionKey: string,
+  objectsToAdd: T[]
+): Promise<void> => {
   // Get a reference to a collection from database that matches the collectionKey
   const collectionRef = collection(db, collectionKey);
 
@@ -70,20 +80,34 @@ export const addCollectionAndDocuments = async (
 };
 
 // Function for getting categories collection data from firebase data store
-export const getCategoriesAndDocuments = async () => {
+export const getCategoriesAndDocuments = async (): Promise<Category[]> => {
   const collectionRef = collection(db, "categories");
   const q = query(collectionRef);
 
   const querySnapshot = await getDocs(q);
 
-  return querySnapshot.docs.map((docSnapshot) => docSnapshot.data());
+  return querySnapshot.docs.map(
+    (docSnapshot) => docSnapshot.data() as Category
+  );
+};
+
+// Additional information type
+export type AdditionalInformation = {
+  displayName?: string;
+};
+
+// User data type
+export type UserData = {
+  createdAt: Date;
+  displayName: string;
+  email: string;
 };
 
 // Function for creating an user document for database from authentication
 export const createUserDocumentFromAuth = async (
-  userAuth,
-  additionalInformation = {}
-) => {
+  userAuth: User,
+  additionalInformation = {} as AdditionalInformation
+): Promise<void | QueryDocumentSnapshot<UserData>> => {
   if (!userAuth) return;
 
   // Get a reference to an user document in database for given uid
@@ -106,24 +130,30 @@ export const createUserDocumentFromAuth = async (
         ...additionalInformation,
       });
     } catch (error) {
-      console.log("error creating the user", error.message);
+      console.log("error creating the user", error);
     }
   }
 
   // return userDocRef (used pre saga)
 
-  return userSnapshot;
+  return userSnapshot as QueryDocumentSnapshot<UserData>;
 };
 
 // Create email and password sign in functionality with Firebase
-export const createAuthUserWithEmailAndPassword = async (email, password) => {
+export const createAuthUserWithEmailAndPassword = async (
+  email: string,
+  password: string
+) => {
   if (!email || !password) return;
 
   return await createUserWithEmailAndPassword(auth, email, password);
 };
 
 // Sign in user with email and password with Firebase
-export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+export const signInAuthUserWithEmailAndPassword = async (
+  email: string,
+  password: string
+) => {
   if (!email || !password) return;
 
   return await signInWithEmailAndPassword(auth, email, password);
@@ -133,13 +163,13 @@ export const signInAuthUserWithEmailAndPassword = async (email, password) => {
 export const signOutUser = async () => await signOut(auth);
 
 // Listener that executes when auth state changes.
-export const onAuthStateChangedListener = (callback) =>
+export const onAuthStateChangedListener = (callback: NextOrObserver<User>) =>
   onAuthStateChanged(auth, callback);
 
 // Function that instead of using auth listener from firebase uses a more promise based oproach.
 // This is needed for redux-saga so not necessarily the best way to do it.
 // It unsubscribes from the event listener and gives back the current user as a promise instead.
-export const getCurrentUser = () => {
+export const getCurrentUser = (): Promise<User | null> => {
   return new Promise((resolve, reject) => {
     const unsubscribe = onAuthStateChanged(
       auth,

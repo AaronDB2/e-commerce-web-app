@@ -1,7 +1,11 @@
 import { createSelector } from "reselect";
 
+import { RootState } from "../store";
+
+import { CartState } from "./cart.reducer";
+
 // Selector that gets the cart state
-const selectCartReducer = (state) => state.cart;
+const selectCartReducer = (state: RootState): CartState => state.cart;
 
 // Selector for cartItems from cart state that uses memoization
 export const selectCartItems = createSelector(

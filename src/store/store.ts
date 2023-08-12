@@ -1,15 +1,29 @@
 import { compose, createStore, applyMiddleware } from "redux";
-import { persistStore, persistReducer } from "redux-persist";
+import { persistStore, persistReducer, PersistConfig } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import logger from "redux-logger";
+// import logger from "redux-logger";
 import createSagaMiddleware from "redux-saga";
 
 import { rootSaga } from "./root-saga";
 
 import { rootReducer } from "./root-reducer";
 
+declare global {
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
+  }
+}
+
+// Type of the root state (root reducer)
+export type RootState = ReturnType<typeof rootReducer>;
+
+// Type for persist config that makes sure that you can only use rootreducer values inside whitelist.
+type ExtendedPersistConfig = PersistConfig<RootState> & {
+  whitelist: (keyof RootState)[];
+};
+
 // Configuration for redux persist
-const persistConfig = {
+const persistConfig: ExtendedPersistConfig = {
   key: "root",
   storage,
   whitelist: ["cart"],
@@ -22,10 +36,14 @@ const sagaMiddleware = createSagaMiddleware();
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // All the middlewares that will run before actions hit the reducers
-const middleWares = [
-  process.env.NODE_ENV !== "production" && logger,
-  sagaMiddleware,
-].filter(Boolean);
+const middleWares = [sagaMiddleware].filter(Boolean);
+
+// Code below has problems with importing the logger with typescript. Need to fix this later
+// Seems react scripts does not support something like always.
+// const middleWares = [
+//   process.env.NODE_ENV !== "production" && logger,
+//   sagaMiddleware,
+// ].filter(Boolean);
 
 // Allow redux devtools extension in chrome to work if installed
 const composeEnhancer =
