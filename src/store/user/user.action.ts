@@ -91,7 +91,7 @@ export const emailSignInStart = withMatcher(
 
 // Action function that will use the SIGN_IN_SUCCESS action type for the userReducer
 export const signInSuccess = withMatcher(
-  (user: UserData): SignInSuccess =>
+  (user: UserData & { id: string }): SignInSuccess =>
     createAction(USER_ACTION_TYPES.SIGN_IN_SUCCESS, user)
 );
 

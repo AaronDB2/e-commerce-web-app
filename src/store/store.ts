@@ -1,7 +1,7 @@
-import { compose, createStore, applyMiddleware } from "redux";
+import { compose, createStore, applyMiddleware, Middleware } from "redux";
 import { persistStore, persistReducer, PersistConfig } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-// import logger from "redux-logger";
+import logger from "redux-logger";
 import createSagaMiddleware from "redux-saga";
 
 import { rootSaga } from "./root-saga";
@@ -36,14 +36,14 @@ const sagaMiddleware = createSagaMiddleware();
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // All the middlewares that will run before actions hit the reducers
-const middleWares = [sagaMiddleware].filter(Boolean);
+// const middleWares = [sagaMiddleware].filter(Boolean);
 
 // Code below has problems with importing the logger with typescript. Need to fix this later
 // Seems react scripts does not support something like always.
-// const middleWares = [
-//   process.env.NODE_ENV !== "production" && logger,
-//   sagaMiddleware,
-// ].filter(Boolean);
+const middleWares = [
+  process.env.NODE_ENV !== "production" && logger,
+  sagaMiddleware,
+].filter((middleware): middleware is Middleware => Boolean(middleware));
 
 // Allow redux devtools extension in chrome to work if installed
 const composeEnhancer =
