@@ -36,7 +36,7 @@ const Navigation = () => {
           <NavLink to="/shop">SHOP</NavLink>
           {/* Check if a user is signed in */}
           {currentUser ? (
-            <NavLink as="span" onClick={signOutUser}>
+            <NavLink to="" as="span" onClick={signOutUser}>
               SIGN OUT
             </NavLink>
           ) : (

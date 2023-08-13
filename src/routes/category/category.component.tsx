@@ -12,9 +12,15 @@ import Spinner from "../../components/spinner/spinner.component";
 
 import { CategoryContainer, Title } from "./category.styles";
 
+type CategoryRouteParams = {
+  category: string;
+};
+
 // Category component. Shows specific categorie collection
 const Category = () => {
-  const { category } = useParams();
+  const { category } = useParams<
+    keyof CategoryRouteParams
+  >() as CategoryRouteParams;
   const categoriesMap = useSelector(selectCategoriesMap);
   const isLoading = useSelector(selectCategoriesIsLoading);
 

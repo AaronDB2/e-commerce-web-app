@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
+import { AuthError, AuthErrorCodes } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import FormInput from "../form-input/form-input.component";
 import Button, { BUTTON_TYPE_CLASSES } from "../button/button.component";
@@ -32,7 +33,7 @@ const SignInForm = () => {
   };
 
   // Handler that fires when form is submitted
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
@@ -40,11 +41,11 @@ const SignInForm = () => {
 
       resetFormFields();
     } catch (error) {
-      switch (error.code) {
-        case "auth/wrong-password":
+      switch ((error as AuthError).code) {
+        case AuthErrorCodes.INVALID_PASSWORD:
           alert("incorrect password for email");
           break;
-        case "auth/user-not-found":
+        case AuthErrorCodes.NULL_USER:
           alert("no user associated with this email");
           break;
         default:
@@ -54,7 +55,7 @@ const SignInForm = () => {
   };
 
   // Handler that fires when input fields change. Sets form values into state
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
 
     setFormFields({ ...formFields, [name]: value });
